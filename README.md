@@ -1,5 +1,5 @@
 # Muhammad Moiz  
-**Software Engineer | Dartmouth College ’26 | CS + Math | Incoming M.S. in CS ’27**
+**Software Engineer | Dartmouth College ’26 | CS + Math**
 
 ---
 
