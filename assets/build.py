@@ -5,8 +5,9 @@ Generates every SVG panel on this profile, in a light and a dark variant.
     python3 assets/build.py
 
 Nothing here is fetched from a badge service. The panels are hand-authored SVG
-with SMIL animation, so they render identically on GitHub, in a raw file view,
-and offline. One theme dict below is the single source of truth for colour.
+with CSS animation. GitHub proxies README images through camo, which strips
+SMIL, so every panel is authored to read correctly with no animation at all --
+the motion is enhancement, never the content. One theme dict below is the single source of truth for colour.
 """
 
 from pathlib import Path
@@ -54,13 +55,6 @@ def window(t, title, h, y0=0):
   <text x="{W//2}" y="{y0+21}" font-family="{MONO}" font-size="12" fill="{t['dim']}" text-anchor="middle">{esc(title)}</text>"""
 
 
-def cursor(t, x, y, begin="0s", w=9, h=15, color=None):
-    c = color or t["green"]
-    return (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="{c}">'
-            f'<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.49;0.5;0.99;1" '
-            f'dur="1.06s" begin="{begin}" repeatCount="indefinite"/></rect>')
-
-
 # --------------------------------------------------------------------------- 1
 def header(t, name):
     """Animated boot console. Lines type in sequence via an expanding clip."""
@@ -79,31 +73,38 @@ def header(t, name):
 
     y = 62
     delay = 0.25
-    clips = []
+    clips, keys, rules = [], [], []
     for i, (kind, text, color) in enumerate(lines):
         cid = f"c{i}"
         chars = len(text) + (2 if kind == "prompt" else 0)
         span = 34 + chars * 8.8
         dur = max(0.22, chars * 0.017)
+        # Static width is the FULL span: if the host strips animation (GitHub's
+        # image proxy does), every line is simply already typed out.
         clips.append(
-            f'<clipPath id="{cid}"><rect x="0" y="{y-16}" height="24" width="0">'
-            f'<animate attributeName="width" from="0" to="{span:.0f}" dur="{dur:.2f}s" '
-            f'begin="{delay:.2f}s" fill="freeze" calcMode="linear"/></rect></clipPath>')
+            f'<clipPath id="{cid}"><rect id="r{i}" x="0" y="{y-16}" '
+            f'height="24" width="{span:.0f}"/></clipPath>')
+        keys.append(f"@keyframes t{i}{{from{{width:0}}to{{width:{span:.0f}px}}}}")
+        rules.append(f"#r{i}{{animation:t{i} {dur:.2f}s linear {delay:.2f}s backwards}}")
         if kind == "prompt":
-            s.append(f'<g clip-path="url(#{cid})"><text x="22" y="{y}" font-family="{MONO}" font-size="14.5">'
-                     f'<tspan fill="{t["green"]}">❯</tspan>'
-                     f'<tspan fill="{t["fg"]}"> {esc(text)}</tspan></text></g>')
+            s_line = (f'<g clip-path="url(#{cid})"><text x="22" y="{y}" font-size="14.5">'
+                      f'<tspan fill="{t["green"]}">❯</tspan>'
+                      f'<tspan fill="{t["fg"]}"> {esc(text)}</tspan></text></g>')
         else:
-            s.append(f'<g clip-path="url(#{cid})"><text x="22" y="{y}" font-family="{MONO}" font-size="14.5" '
-                     f'fill="{t[color]}">{esc(text)}</text></g>')
+            s_line = (f'<g clip-path="url(#{cid})"><text x="22" y="{y}" font-size="14.5" '
+                      f'fill="{t[color]}">{esc(text)}</text></g>')
+        s.append(s_line)
         y += 27 if kind == "prompt" else 25
         delay += dur + (0.14 if kind == "prompt" else 0.06)
 
-    # trailing prompt + blinking cursor, revealed after the last line
-    s.append(f'<g opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.2s" '
-             f'begin="{delay:.2f}s" fill="freeze"/>'
-             f'<text x="22" y="{y+4}" font-family="{MONO}" font-size="14.5" fill="{t["green"]}">❯</text>'
-             f'{cursor(t, 38, y-8, f"{delay:.2f}s")}</g>')
+    # trailing prompt + blinking cursor. Static state: solid caret, already shown.
+    keys.append("@keyframes fadein{from{opacity:0}to{opacity:1}}")
+    keys.append("@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}")
+    rules.append(f"#tail{{animation:fadein 0.2s linear {delay:.2f}s backwards}}")
+    rules.append(f"#caret{{animation:blink 1.06s step-end {delay:.2f}s infinite}}")
+    s.append(f'<g id="tail"><text x="22" y="{y+4}" font-size="14.5" fill="{t["green"]}">❯</text>'
+             f'<rect id="caret" x="38" y="{y-8}" width="9" height="15" fill="{t["green"]}"/></g>')
+    s.append("<style>" + "".join(keys) + "".join(rules) + "</style>")
     s.insert(2, "<defs>" + "".join(clips) + "</defs>")
     s.append("</svg>")
     return "".join(s)
@@ -125,13 +126,13 @@ def services(t):
     s.append(f'<text x="22" y="58" font-family="{MONO}" font-size="13" fill="{t["dim"]}">'
              f'<tspan fill="{t["green"]}">❯</tspan> systemctl --user list-units --type=service</text>')
     y = 88
+    s.append("<style>@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}</style>")
     for i, (unit, state, color, desc) in enumerate(rows):
-        s.append(f'<circle cx="28" cy="{y-4}" r="4" fill="{t[color]}">'
-                 f'<animate attributeName="opacity" values="1;0.35;1" dur="2.4s" '
-                 f'begin="{i*0.32:.2f}s" repeatCount="indefinite"/></circle>')
-        s.append(f'<text x="44" y="{y}" font-family="{MONO}" font-size="13.5" fill="{t["fg"]}">{esc(unit)}</text>')
-        s.append(f'<text x="252" y="{y}" font-family="{MONO}" font-size="13.5" fill="{t[color]}">{esc(state)}</text>')
-        s.append(f'<text x="330" y="{y}" font-family="{MONO}" font-size="13" fill="{t["dim"]}">{esc(desc)}</text>')
+        s.append(f'<circle cx="28" cy="{y-4}" r="4" fill="{t[color]}" '
+                 f'style="animation:pulse 2.4s ease-in-out {i*0.32:.2f}s infinite"/>')
+        s.append(f'<text x="44" y="{y}" font-size="13.5" fill="{t["fg"]}">{esc(unit)}</text>')
+        s.append(f'<text x="252" y="{y}" font-size="13.5" fill="{t[color]}">{esc(state)}</text>')
+        s.append(f'<text x="330" y="{y}" font-size="13" fill="{t["dim"]}">{esc(desc)}</text>')
         y += 30
     return "".join(s) + "</svg>"
 
@@ -154,14 +155,18 @@ def dataplane(t):
     # rail
     s.append(f'<line x1="{70+bw//2}" y1="{cy}" x2="{678-bw//2}" y2="{cy}" stroke="{t["border"]}" stroke-width="2"/>')
 
-    # travelling packets
+    # travelling packets. Static state: three dots resting on the rail.
     x0, x1 = 70 + bw // 2, 678 - bw // 2
-    for i, delay in enumerate((0, 1.6, 3.2)):
-        s.append(f'<circle r="4.5" cy="{cy}" fill="{t["green"]}" opacity="0.9">'
-                 f'<animate attributeName="cx" from="{x0}" to="{x1}" dur="4.8s" '
-                 f'begin="{delay}s" repeatCount="indefinite"/>'
-                 f'<animate attributeName="opacity" values="0;0.95;0.95;0" dur="4.8s" '
-                 f'begin="{delay}s" repeatCount="indefinite"/></circle>')
+    span = x1 - x0
+    keys = ["@keyframes flow{from{transform:translateX(0);opacity:0}"
+            "8%{opacity:.95}92%{opacity:.95}"
+            "to{transform:translateX(" + str(span) + "px);opacity:0}}"]
+    rules = []
+    for i, d in enumerate((0, 1.6, 3.2)):
+        rules.append(f".p{i}{{animation:flow 4.8s linear {d}s infinite}}")
+        s.append(f'<circle class="p{i}" r="4.5" cx="{x0 + i * (x1 - x0) // 3}" cy="{cy}" '
+                 f'fill="{t["green"]}" opacity="0.9"/>')
+    s.append("<style>" + "".join(keys) + "".join(rules) + "</style>")
 
     for x, key, label, color in nodes:
         s.append(f'<rect x="{x-bw//2}" y="{cy-bh//2}" width="{bw}" height="{bh}" rx="8" '
