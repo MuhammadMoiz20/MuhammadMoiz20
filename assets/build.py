@@ -88,7 +88,7 @@ def header(t, name):
         rules.append(f"#r{i}{{animation:t{i} {dur:.2f}s linear {delay:.2f}s backwards}}")
         if kind == "prompt":
             s_line = (f'<g clip-path="url(#{cid})"><text x="22" y="{y}" font-size="14.5">'
-                      f'<tspan fill="{t["green"]}">❯</tspan>'
+                      f'<tspan fill="{t["green"]}">\\u276f</tspan>'
                       f'<tspan fill="{t["fg"]}"> {esc(text)}</tspan></text></g>')
         else:
             s_line = (f'<g clip-path="url(#{cid})"><text x="22" y="{y}" font-size="14.5" '
@@ -102,7 +102,7 @@ def header(t, name):
     keys.append("@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}")
     rules.append(f"#tail{{animation:fadein 0.2s linear {delay:.2f}s backwards}}")
     rules.append(f"#caret{{animation:blink 1.06s step-end {delay:.2f}s infinite}}")
-    s.append(f'<g id="tail"><text x="22" y="{y+4}" font-size="14.5" fill="{t["green"]}">❯</text>'
+    s.append(f'<g id="tail"><text x="22" y="{y+4}" font-size="14.5" fill="{t["green"]}">\\u276f</text>'
              f'<rect id="caret" x="38" y="{y-8}" width="9" height="15" fill="{t["green"]}"/></g>')
     s.append("<style>" + "".join(keys) + "".join(rules) + "</style>")
     s.insert(2, "<defs>" + "".join(clips) + "</defs>")
