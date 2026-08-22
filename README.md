@@ -1,6 +1,6 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/MuhammadMoiz20/MuhammadMoiz20/main/assets/header-dark.svg?v=2">
-  <img alt="whoami — Muhammad Moiz, Dartmouth CS '26, backend and distributed systems" src="https://raw.githubusercontent.com/MuhammadMoiz20/MuhammadMoiz20/main/assets/header-light.svg?v=2" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/MuhammadMoiz20/MuhammadMoiz20/main/assets/header-dark.svg?v=3">
+  <img alt="whoami — Muhammad Moiz, Dartmouth CS '26, backend and distributed systems" src="https://raw.githubusercontent.com/MuhammadMoiz20/MuhammadMoiz20/main/assets/header-light.svg?v=3" width="100%">
 </picture>
 
 <p align="center">
@@ -15,8 +15,8 @@
 ### Currently running
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/MuhammadMoiz20/MuhammadMoiz20/main/assets/services-dark.svg?v=2">
-  <img alt="Service status board of current projects" src="https://raw.githubusercontent.com/MuhammadMoiz20/MuhammadMoiz20/main/assets/services-light.svg?v=2" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/MuhammadMoiz20/MuhammadMoiz20/main/assets/services-dark.svg?v=3">
+  <img alt="Service status board of current projects" src="https://raw.githubusercontent.com/MuhammadMoiz20/MuhammadMoiz20/main/assets/services-light.svg?v=3" width="100%">
 </picture>
 
 ---
@@ -24,8 +24,8 @@
 ### The shape of what I build
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/MuhammadMoiz20/MuhammadMoiz20/main/assets/dataplane-dark.svg?v=2">
-  <img alt="A request traced through browser, edge, FastAPI, queue, and Postgres" src="https://raw.githubusercontent.com/MuhammadMoiz20/MuhammadMoiz20/main/assets/dataplane-light.svg?v=2" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/MuhammadMoiz20/MuhammadMoiz20/main/assets/dataplane-dark.svg?v=3">
+  <img alt="A request traced through browser, edge, FastAPI, queue, and Postgres" src="https://raw.githubusercontent.com/MuhammadMoiz20/MuhammadMoiz20/main/assets/dataplane-light.svg?v=3" width="100%">
 </picture>
 
 Two years of backend work at **DALI Lab** across client products, plus internships in the UK
@@ -62,8 +62,8 @@ that must not see each other's rows, and work that has to happen after the respo
 ### Stack
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/MuhammadMoiz20/MuhammadMoiz20/main/assets/stack-dark.svg?v=2">
-  <img alt="Stack, grouped by how often I actually reach for it" src="https://raw.githubusercontent.com/MuhammadMoiz20/MuhammadMoiz20/main/assets/stack-light.svg?v=2" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/MuhammadMoiz20/MuhammadMoiz20/main/assets/stack-dark.svg?v=3">
+  <img alt="Stack, grouped by how often I actually reach for it" src="https://raw.githubusercontent.com/MuhammadMoiz20/MuhammadMoiz20/main/assets/stack-light.svg?v=3" width="100%">
 </picture>
 
 <details>
