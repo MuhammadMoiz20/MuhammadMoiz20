@@ -72,40 +72,23 @@ def header(t, name):
          window(t, f"{name}@thayer — zsh — 96x24", h)]
 
     y = 62
-    delay = 0.25
-    clips, keys, rules = [], [], []
-    for i, (kind, text, color) in enumerate(lines):
-        cid = f"c{i}"
-        chars = len(text) + (2 if kind == "prompt" else 0)
-        span = 34 + chars * 8.8
-        dur = max(0.22, chars * 0.017)
-        # Static width is the FULL span: if the host strips animation (GitHub's
-        # image proxy does), every line is simply already typed out.
-        clips.append(
-            f'<clipPath id="{cid}"><rect id="r{i}" x="0" y="{y-16}" '
-            f'height="24" width="{span:.0f}"/></clipPath>')
-        keys.append(f"@keyframes t{i}{{from{{width:0}}to{{width:{span:.0f}px}}}}")
-        rules.append(f"#r{i}{{animation:t{i} {dur:.2f}s linear {delay:.2f}s backwards}}")
+    for kind, text, color in lines:
         if kind == "prompt":
-            s_line = (f'<g clip-path="url(#{cid})"><text x="22" y="{y}" font-size="14.5">'
-                      f'<tspan fill="{t["green"]}">❯</tspan>'
-                      f'<tspan fill="{t["fg"]}"> {esc(text)}</tspan></text></g>')
+            s.append(f'<text x="22" y="{y}" font-size="14.5">'
+                     f'<tspan fill="{t["green"]}">❯</tspan>'
+                     f'<tspan fill="{t["fg"]}"> {esc(text)}</tspan></text>')
         else:
-            s_line = (f'<g clip-path="url(#{cid})"><text x="22" y="{y}" font-size="14.5" '
-                      f'fill="{t[color]}">{esc(text)}</text></g>')
-        s.append(s_line)
+            s.append(f'<text x="22" y="{y}" font-size="14.5" '
+                     f'fill="{t[color]}">{esc(text)}</text>')
         y += 27 if kind == "prompt" else 25
-        delay += dur + (0.14 if kind == "prompt" else 0.06)
 
-    # trailing prompt + blinking cursor. Static state: solid caret, already shown.
-    keys.append("@keyframes fadein{from{opacity:0}to{opacity:1}}")
-    keys.append("@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}")
-    rules.append(f"#tail{{animation:fadein 0.2s linear {delay:.2f}s backwards}}")
-    rules.append(f"#caret{{animation:blink 1.06s step-end {delay:.2f}s infinite}}")
-    s.append(f'<g id="tail"><text x="22" y="{y+4}" font-size="14.5" fill="{t["green"]}">❯</text>'
-             f'<rect id="caret" x="38" y="{y-8}" width="9" height="15" fill="{t["green"]}"/></g>')
-    s.append("<style>" + "".join(keys) + "".join(rules) + "</style>")
-    s.insert(2, "<defs>" + "".join(clips) + "</defs>")
+    # Trailing caret. The blink is CSS with the default fill-mode, so a host
+    # that refuses to animate (GitHub's image proxy does) still renders a
+    # solid caret rather than nothing at all.
+    s.append(f'<text x="22" y="{y+4}" font-size="14.5" fill="{t["green"]}">❯</text>'
+             f'<rect id="caret" x="38" y="{y-8}" width="9" height="15" fill="{t["green"]}"/>'
+             f'<style>@keyframes blink{{0%,49%{{opacity:1}}50%,100%{{opacity:0}}}}'
+             f'#caret{{animation:blink 1.06s step-end infinite}}</style>')
     s.append("</svg>")
     return "".join(s)
 
